@@ -22,3 +22,6 @@ class MongoDB:
 
     async def get_db(self) -> AsyncIOMotorClient:
         return self._db
+
+
+db = MongoDB()
