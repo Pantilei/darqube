@@ -31,7 +31,7 @@ class MongoDB:
             last_name=settings.admin_user_last_name,
             role="admin",
             is_active=True,
-            password=settings.admin_user_last_password
+            password=settings.admin_user_password
         )
         user = await crud.user.get_by_first_name(self._conn[settings.db_name], "admin")
         if not user:
