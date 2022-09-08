@@ -1,2 +1,2 @@
 #!/bin/bash
-uvicorn --host 0.0.0.0 --port 8001 app.main:app --reload
+gunicorn app.main:app --workers $WORKERS --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$SERVER_PORT

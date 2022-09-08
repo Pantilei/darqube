@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: backend
     ports:
-      - 8001:8001
+      - ${SERVER_PORT}:${SERVER_PORT}
     env_file:
       - .env
     depends_on:
@@ -16,6 +16,6 @@ services:
     image: mongo:6.0
     container_name: db
     ports:
-      - 27017:27017
+      - ${MONGODB_PORT}:${MONGODB_PORT}
     volumes:
       - /tmp/mongo:/data/db
