@@ -6,7 +6,9 @@ class Settings(BaseSettings):
     db_name: str = "darqube"
     api_v1: str = "/api/v1"
 
-    token_expire_minutes: int = 30
+    jwt_token_expire_minutes: int = 30
+    jwt_token_secret: str = "my_super_secret"
+    jwt_token_algo: str = "HS256"
 
 
 settings = Settings()
