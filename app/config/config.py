@@ -10,5 +10,9 @@ class Settings(BaseSettings):
     jwt_token_secret: str = "my_super_secret"
     jwt_token_algo: str = "HS256"
 
+    admin_user_first_name: str = "admin"
+    admin_user_last_name: str = "admin"
+    admin_user_last_password: str = "admin"
+
 
 settings = Settings()

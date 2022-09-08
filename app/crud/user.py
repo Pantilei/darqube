@@ -1,10 +1,11 @@
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from uuid import uuid4
+from pymongo.errors import DuplicateKeyError
+from fastapi import HTTPException, status
 from datetime import datetime, timezone
 from typing import Union, List
 
 from app.models.mongo_model import OID
-from app.models.user import UserCreate, UserInDB, User, UserToDB, UserUpdate
+from app.models.user import UserCreate, User, UserToDB, UserUpdate
 from app.core.security import hash_password, verify_password
 
 _db_collection = "users"
@@ -14,6 +15,15 @@ async def get_many(db: AsyncIOMotorDatabase, limit: int = 100) -> List[User]:
     cr = db[_db_collection].find()
     users = await cr.to_list(length=limit)
     return [User.from_mongo(u) for u in users]
+
+
+async def get_by_first_name(db: AsyncIOMotorDatabase, first_name: str) -> List[User]:
+    user = await db[_db_collection].find_one({
+        "first_name": first_name
+    })
+    if user is None:
+        return user
+    return User.from_mongo(user)
 
 
 async def get_one(db: AsyncIOMotorDatabase, user_id: OID) -> Union[User, None]:
@@ -32,8 +42,13 @@ async def create(db: AsyncIOMotorDatabase, user: UserCreate) -> User:
         created_at=datetime.utcnow(),
         hashed_pass=hash_password(user.password),
     )
-
-    result = await db[_db_collection].insert_one(db_obj.mongo())
+    try:
+        result = await db[_db_collection].insert_one(db_obj.mongo())
+    except DuplicateKeyError as de:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User with this first name already exists!"
+        )
 
     return User(**db_obj.dict(), id=result.inserted_id)
 
