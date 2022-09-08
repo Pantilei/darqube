@@ -1,19 +1,26 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from uuid import uuid4
 from datetime import datetime
-from app.models.mongo_model import OID
+from typing import Union, List
 
+from app.models.mongo_model import OID
 from app.models.user import UserCreate, UserInDB, User, UserToDB, UserUpdate
 from app.core.security import hash_password
 
 _db_collection = "users"
 
 
-async def get(db: AsyncIOMotorClient, user_id: OID) -> User:
+async def get_many(db: AsyncIOMotorClient, limit: int = 100) -> List[User]:
+    cr = db[_db_collection].find()
+    users = await cr.to_list(length=limit)
+    return [User.from_mongo(u) for u in users]
 
-    user = await db[_db_collection].find_one({"_in": user_id})
 
-    return User(**user)
+async def get_one(db: AsyncIOMotorClient, user_id: OID) -> Union[User, None]:
+    user = await db[_db_collection].find_one({"_id": user_id})
+    if user is None:
+        return user
+    return User.from_mongo(user)
 
 
 async def create(db: AsyncIOMotorClient, user: UserCreate) -> User:
@@ -23,29 +30,35 @@ async def create(db: AsyncIOMotorClient, user: UserCreate) -> User:
         role=user.role,
         is_active=user.is_active,
         created_at=datetime.utcnow(),
-        hashed_pass=hash_password(),
+        hashed_pass=hash_password(user.password),
     )
+
     result = await db[_db_collection].insert_one(db_obj.mongo())
-    print("result: ", result)
 
-    return User(**db_obj)
+    return User(**db_obj.dict(), id=result.inserted_id)
 
 
-async def update(db: AsyncIOMotorClient, user: UserUpdate, user_id: OID) -> User:
+async def update(db: AsyncIOMotorClient, user: UserUpdate, user_id: OID) -> Union[User, None]:
 
     res = await db[_db_collection].update_one(
         {"_id": user_id},
         {"$set": {**user.mongo()}}
     )
+    if res is None:
+        return res
 
-    return User.from_mongo(res)
+    user_obj = await db[_db_collection].find_one(
+        {"_id": user_id}
+    )
+    return User.from_mongo(user_obj)
 
 
 async def delete(db: AsyncIOMotorClient, user_id: OID) -> bool:
 
-    user = await db[_db_collection].find_one({"_in": user_id})
+    user = await db[_db_collection].find_one({"_id": user_id})
+    print("\n\nUSER: ", user)
     if user is None:
-        return False
+        return user
     await db[_db_collection].delete_one({"_id": user_id})
 
-    return True
+    return User.from_mongo(user)
