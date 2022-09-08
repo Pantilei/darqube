@@ -2,4 +2,5 @@ fastapi==0.82.0
 motor==3.0.0
 uvicorn[standard]==0.17.6
 passlib==1.7.4
-python-jose[cryptography]=3.3.0
+python-jose[cryptography]==3.3.0
+python-multipart==0.0.5
