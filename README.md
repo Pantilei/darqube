@@ -52,3 +52,4 @@ Deploy: Docker Compose
 
 - Field **first_name** has unique constraint
 - PUT request can be sent only by user with **admin** role, as asked in 5th point of task.
+- API docs can be found in **http://0.0.0.0:8000/docs** if other port is not specified in **.env** file.
