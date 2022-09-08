@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
 from app.db.db import db
-from app.api.v1 import user
+from app.api.v1.api import api_router
 from app.errors import BadRequest, UnprocessableError
 
 app = FastAPI()
@@ -43,4 +43,4 @@ async def invalid_req_handler(
     )
 
 
-app.include_router(user.router)
+app.include_router(api_router)
