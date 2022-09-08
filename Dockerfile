@@ -12,7 +12,7 @@ RUN pip3 install --upgrade pip
 RUN pip3 install -r /requirements.txt
 
 RUN mkdir app
-WORKDIR /app
+WORKDIR /
 COPY ./app /app
 
 COPY ./start_server.sh /start_server.sh
