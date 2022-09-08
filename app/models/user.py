@@ -9,7 +9,7 @@ class UserBase(MongoModel):
     first_name: Union[str, None] = None
     last_name: Union[str, None] = None
     role: Literal['admin', 'dev', 'simple mortal'] = 'simple mortal'
-    is_active: Union[bool, True] = True
+    is_active: bool = True
 
 
 class UserCreate(UserBase):
@@ -30,7 +30,6 @@ class UserInDB(UserBase):
 
 
 class UserToDB(UserBase):
-    id: OID
     created_at: datetime
     last_login: Union[datetime, None] = None
     hashed_pass: str
